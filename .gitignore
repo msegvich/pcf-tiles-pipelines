@@ -3,3 +3,4 @@
 .DS_Store
 *cred*.sh
 .idea/
+**/*mds-params*.yml
