@@ -20,4 +20,4 @@ params:
   OPSMAN_DOMAIN_OR_IP_ADDRESS:
 
 run:
-  path: pcf-pipelines/tasks/toggle-errands/task.sh
+  path: pcf-pipelines/custom-tasks/toggle-errands/task.sh

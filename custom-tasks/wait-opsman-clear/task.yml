@@ -32,4 +32,4 @@ params:
   OPSMAN_DOMAIN_OR_IP_ADDRESS:
 
 run:
-  path: pcf-pipelines/tasks/wait-opsman-clear/task.sh
+  path: pcf-pipelines/custom-tasks/wait-opsman-clear/task.sh

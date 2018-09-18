@@ -32,4 +32,4 @@ params:
   OPSMAN_DOMAIN_OR_IP_ADDRESS:
 
 run:
-  path: pcf-pipelines/tasks/delete-unused-products/task.sh
+  path: pcf-pipelines/custom-tasks/delete-unused-products/task.sh
