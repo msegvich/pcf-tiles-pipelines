@@ -23,4 +23,4 @@ inputs:
   - name: jq
 
 run:
-  path: pipelines-repo/tasks/stemcell-uploader/task.sh
+  path: pipelines-repo/tasks/stemcell-uploader/fixed-task.sh
