@@ -120,7 +120,7 @@ jobs:
       PIVNET_API_TOKEN: ((pivnet_token))
 
   - task: upload-stemcell
-    file: pipelines-repo/tasks/stemcell-uploader/task.yml
+    file: pipelines-repo/tasks/stemcell-uploader/fixed-task.yml
     params:
       DEBUG: ((debug))
       OPS_MGR_HOST: ((ops_mgr_host))
