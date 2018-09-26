@@ -9,10 +9,13 @@ fi
 #if [[ -n "$NO_PROXY" ]]; then
 #  echo "$OM_IP $OPS_MGR_HOST" >> /etc/hosts
 #fi
+OM_CMD=./om-cli/om-linux
+JQ_CMD=./jq/jq-linux64
+PIVNET_CLI=`find ./pivnet-cli -name "*linux-amd64*"`
+chmod +x $PIVNET_CLI
 
 STEMCELL_VERSION=$(
-  cat ./pivnet-product/metadata.json |
-  jq --raw-output \
+  cat ./pivnet-product/metadata.json | $JQ_CMD --raw-output \
     '
     [
       (.Dependencies // [])[]
@@ -29,7 +32,7 @@ STEMCELL_VERSION=$(
 
 if [ -n "$STEMCELL_VERSION" ]; then
   diagnostic_report=$(
-    om-linux \
+    $OM_CMD \
       --target https://$OPS_MGR_HOST \
       --client-id "${OPSMAN_CLIENT_ID}" \
       --client-secret "${OPSMAN_CLIENT_SECRET}" \
@@ -41,7 +44,7 @@ if [ -n "$STEMCELL_VERSION" ]; then
 
   stemcell=$(
     echo $diagnostic_report |
-    jq \
+    $JQ_CMD \
       --arg version "$STEMCELL_VERSION" \
       --arg glob "$IAAS_TYPE" \
     '.stemcells[] | select(contains($version) and contains($glob))'
@@ -51,7 +54,7 @@ if [ -n "$STEMCELL_VERSION" ]; then
     echo "Downloading stemcell $STEMCELL_VERSION"
 
     product_slug=$(
-      jq --raw-output \
+      $JQ_CMD --raw-output \
         '
         if any(.Dependencies[]; select(.Release.Product.Name | contains("Stemcells for PCF (Windows)"))) then
           "stemcells-windows-server"
@@ -61,8 +64,8 @@ if [ -n "$STEMCELL_VERSION" ]; then
         ' < pivnet-product/metadata.json
     )
 
-    pivnet-cli login --api-token="$PIVNET_API_TOKEN"
-    pivnet-cli download-product-files -p "$product_slug" -r $STEMCELL_VERSION -g "*${IAAS_TYPE}*" --accept-eula
+    $PIVNET_CLI login --api-token="$PIVNET_API_TOKEN"
+    $PIVNET_CLI download-product-files -p "$product_slug" -r $STEMCELL_VERSION -g "*${IAAS_TYPE}*" --accept-eula
 
     SC_FILE_PATH=`find ./ -name *.tgz`
 
@@ -71,7 +74,7 @@ if [ -n "$STEMCELL_VERSION" ]; then
       exit 1
     fi
 
-    om-linux -t https://$OPS_MGR_HOST \
+    $OM_CMD -t https://$OPS_MGR_HOST \
       --client-id "${OPSMAN_CLIENT_ID}" \
       --client-secret "${OPSMAN_CLIENT_SECRET}" \
       -u "$OPS_MGR_USR" \

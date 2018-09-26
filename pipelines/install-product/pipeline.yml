@@ -126,6 +126,8 @@ jobs:
       OPS_MGR_HOST: ((ops_mgr_host))
       OPS_MGR_USR: ((ops_mgr_usr))
       OPS_MGR_PWD: ((ops_mgr_pwd))
+      OPSMAN_CLIENT_ID: ""
+      OPSMAN_CLIENT_SECRET: ""
       PIVNET_API_TOKEN: ((pivnet_token))
       IAAS_TYPE: ((iaas_type))
       STEMCELL_TYPE: ((stemcell_type))
