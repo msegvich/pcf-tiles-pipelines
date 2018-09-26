@@ -9,8 +9,13 @@ fi
 #if [[ -n "$NO_PROXY" ]]; then
 #  echo "$OM_IP $OPS_MGR_HOST" >> /etc/hosts
 #fi
+
+chmod +x om-cli/om-linux
 OM_CMD=./om-cli/om-linux
+
+chmod +x ./jq/jq-linux64
 JQ_CMD=./jq/jq-linux64
+
 PIVNET_CLI=`find ./pivnet-cli -name "*linux-amd64*"`
 chmod +x $PIVNET_CLI
 
