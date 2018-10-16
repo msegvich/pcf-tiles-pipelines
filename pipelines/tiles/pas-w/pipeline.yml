@@ -91,7 +91,7 @@ jobs:
   plan:
   - aggregate:
     - get: pipelines-repo
-      trigger: true
+      trigger: false
     - get: pivnet-pasw
       resource: pivnet-product
       params:
@@ -178,17 +178,17 @@ jobs:
   plan:
   - aggregate:
     - get: pipelines-repo
-      passed: [build-pasw-injected]
+      passed: [stage-product]
     - get: pivnet-product
       resource: pivnet-product
       params:
         globs: []
-      passed: [build-pasw-injected]
+      passed: [stage-product]
     - get: om-cli
       params:
         globs:
         - "*-linux"
-      passed: [build-pasw-injected]
+      passed: [stage-product]
     - get: jq
       params:
         globs:
@@ -207,35 +207,7 @@ jobs:
       OPS_MGR_PWD: ((ops_mgr_pwd))
       PRODUCT_IDENTIFIER: ((product_identifier))
 
-#- name: stage-product
-#  plan:
-#  - aggregate:
-#    - get: pipelines-repo
-#      passed: [upload-product]
-#    - get: pivnet-product
-#      resource: pivnet-product
-#      params:
-#        globs:
-#        - "*.pivotal"
-#      passed: [upload-product]
-#      trigger: true
-#    - get: om-cli
-#      params:
-#        globs:
-#        - "*-linux"
-#      passed: [upload-product]
-#
-#  - task: stage-tile
-#    file: pipelines-repo/tasks/stage-product/task.yml
-#    params:
-#      DEBUG: ((debug))
-#      OPS_MGR_HOST: ((ops_mgr_host))
-#      OPS_MGR_USR: ((ops_mgr_usr))
-#      OPS_MGR_PWD: ((ops_mgr_pwd))
-#      PRODUCT_IDENTIFIER: ((product_identifier))
-#      DEPENDENCY_PRODUCT_TILES: ((dependency_product_tiles))
-
-- name: config-product
+- name: stage-product
   plan:
   - aggregate:
     - get: pipelines-repo
@@ -243,7 +215,8 @@ jobs:
     - get: pivnet-product
       resource: pivnet-product
       params:
-        globs: []
+        globs:
+        - "*.pivotal"
       passed: [build-pasw-injected]
       trigger: true
     - get: om-cli
@@ -251,6 +224,73 @@ jobs:
         globs:
         - "*-linux"
       passed: [build-pasw-injected]
+
+  - task: stage-tile
+    file: pipelines-repo/tasks/stage-product/task.yml
+    params:
+      DEBUG: ((debug))
+      OPS_MGR_HOST: ((ops_mgr_host))
+      OPS_MGR_USR: ((ops_mgr_usr))
+      OPS_MGR_PWD: ((ops_mgr_pwd))
+      PRODUCT_IDENTIFIER: ((product_identifier))
+      DEPENDENCY_PRODUCT_TILES: ((dependency_product_tiles))
+
+- name: upload-stemcell
+  plan:
+  - aggregate:
+    - get: pcf-pipelines
+      resource: pipelines-repo
+      passed: [stage-product]
+    - get: pivnet-product
+      resource: pivnet-product
+      params:
+        globs:
+        - "*.pivotal"
+      passed: [stage-product]
+    - get: om-cli
+      params:
+        globs:
+        - "*-linux"
+      passed: [stage-product]
+    - get: pivnet-cli
+      params:
+        globs:
+        - "*linux-amd64*"
+      passed: [build-pasw-injected]
+    - get: jq
+      params:
+        globs:
+        - "*linux64*"
+      passed: [build-pasw-injected]
+
+  - task: upload-stemcell
+    file: pcf-pipelines/tasks/upload-stemcell/task.yml
+    params:
+      DEBUG: ((debug))
+      OPSMAN_DOMAIN_OR_IP_ADDRESS: ((ops_mgr_host))
+      OPS_MGR_USR: ((ops_mgr_usr))
+      OPS_MGR_PWD: ((ops_mgr_pwd))
+      OPSMAN_CLIENT_ID: ""
+      OPSMAN_CLIENT_SECRET: ""
+      PIVNET_API_TOKEN: ((pivnet_token))
+      IAAS: ((iaas_type))
+
+- name: config-product
+  plan:
+  - aggregate:
+    - get: pipelines-repo
+      passed: [upload-stemcell]
+    - get: pivnet-product
+      resource: pivnet-product
+      params:
+        globs: []
+      passed: [upload-stemcell]
+      trigger: true
+    - get: om-cli
+      params:
+        globs:
+        - "*-linux"
+      passed: [upload-stemcell]
     - get: jq
       params:
         globs:

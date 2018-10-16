@@ -9,6 +9,7 @@ image_resource:
     tag: 1.0.15
 
 params:
+  DEBUG:
   OPSMAN_DOMAIN_OR_IP_ADDRESS:
   OPSMAN_CLIENT_ID:
   OPSMAN_CLIENT_SECRET:
