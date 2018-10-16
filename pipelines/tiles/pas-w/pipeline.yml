@@ -49,29 +49,6 @@ resources:
     product_slug: ((product_name))
     product_version: ((product_version))
 
-#- name: pasw-pipelines
-#  type: git
-#  source:
-#    uri: git@github.com:kartiklunkad26/pcf-pipelines.git
-#    branch: deploy-pasw
-#    private_key: {{git_private_key}}
-
-- name: pivnet-pasw
-  type: pivnet
-  source:
-    api_token: {{pivnet_token}}
-    product_slug: pas-windows
-    product_version: {{pasw_major_minor_version}}
-    sort_by: semver
-
-- name: pivnet-winfs-injector
-  type: pivnet
-  source:
-    api_token: {{pivnet_token}}
-    product_slug: pas-windows
-    product_version: {{pasw_major_minor_version}}
-    sort_by: semver
-
 jobs:
 
 - name: delete-product
@@ -115,10 +92,12 @@ jobs:
   - get: pipelines-repo
     trigger: true
   - get: pivnet-pasw
+    resource: pivnet-product
     params:
       globs:
       - "*.pivotal"
   - get: pivnet-winfs-injector
+    resource: pivnet-product
     params:
       globs:
       - "*injector*"
