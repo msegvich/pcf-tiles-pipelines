@@ -1,0 +1,16 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: pcfnorm/rootfs
+
+inputs:
+- name: pcf-pipelines
+- name: pivnet-pasw
+- name: pivnet-winfs-injector
+run:
+  path: pcf-pipelines/deploy-pasw/tasks/build-injected-pasw/task.sh
+outputs:
+- name: pasw-injected
