@@ -89,18 +89,32 @@ jobs:
 
 - name: build-pasw-injected
   plan:
-  - get: pipelines-repo
-    trigger: true
-  - get: pivnet-pasw
-    resource: pivnet-product
-    params:
-      globs:
-      - "*.pivotal"
-  - get: pivnet-winfs-injector
-    resource: pivnet-product
-    params:
-      globs:
-      - "*injector*"
+  - aggregate:
+    - get: pipelines-repo
+      trigger: true
+    - get: pivnet-pasw
+      resource: pivnet-product
+      params:
+        globs:
+        - "*.pivotal"
+    - get: pivnet-winfs-injector
+      resource: pivnet-product
+      params:
+        globs:
+        - "*injector*"
+    - get: om-cli
+      params:
+        globs:
+        - "*-linux"
+    - get: pivnet-cli
+      params:
+        globs:
+        - "*linux-amd64*"
+    - get: jq
+      params:
+        globs:
+        - "*linux64*"
+
   - task: build-injected-pasw
     file: pipelines-repo/tasks/build-injected-pasw/task.yml
   - task: upload-injected-pasw

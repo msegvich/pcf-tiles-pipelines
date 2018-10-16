@@ -19,8 +19,8 @@ params:
   OM_IP:
 
 inputs:
-  - name: pcf-pipelines
+  - name: pipelines-repo
   - name: pasw-injected
 
 run:
-  path: pcf-pipelines/deploy-pasw/tasks/upload-injected-pasw/task.sh
+  path: pipelines-repo/tasks/upload-injected-pasw/task.sh
