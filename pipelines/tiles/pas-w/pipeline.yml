@@ -13,12 +13,12 @@ resources:
     repository: om
     access_token: ((git_token)) ## Optional: Removing this will cause you to hit the rate limit
 
-- name: pivnet-cli
-  type: github-release
-  source:
-    user: pivotal-cf
-    repository: pivnet-cli
-    access_token: ((git_token)) ## Optional: Removing this will cause you to hit the rate limit
+# - name: pivnet-cli
+#   type: github-release
+#   source:
+#     user: pivotal-cf
+#     repository: pivnet-cli
+#     access_token: ((git_token)) ## Optional: Removing this will cause you to hit the rate limit
 
 - name: jq
   type: github-release
@@ -102,18 +102,6 @@ jobs:
       params:
         globs:
         - "*injector*"
-    - get: om-cli
-      params:
-        globs:
-        - "*-linux"
-    - get: pivnet-cli
-      params:
-        globs:
-        - "*linux-amd64*"
-    - get: jq
-      params:
-        globs:
-        - "*linux64*"
 
   - task: build-injected-pasw
     file: pipelines-repo/tasks/build-injected-pasw/task.yml
@@ -174,39 +162,6 @@ jobs:
 #      IAAS_TYPE: ((iaas_type))
 #      STEMCELL_TYPE: ((stemcell_type))
 
-- name: generate-product-config
-  plan:
-  - aggregate:
-    - get: pipelines-repo
-      passed: [stage-product]
-    - get: pivnet-product
-      resource: pivnet-product
-      params:
-        globs: []
-      passed: [stage-product]
-    - get: om-cli
-      params:
-        globs:
-        - "*-linux"
-      passed: [stage-product]
-    - get: jq
-      params:
-        globs:
-        - "*linux64*"
-      passed: [build-pasw-injected]
-    - get: tile-config-convertor
-      params:
-        globs: ["*linux*"]
-
-  - task: generate-config
-    file: pipelines-repo/tasks/generate-config/task.yml
-    params:
-      DEBUG: ((debug))
-      OPS_MGR_HOST: ((ops_mgr_host))
-      OPS_MGR_USR: ((ops_mgr_usr))
-      OPS_MGR_PWD: ((ops_mgr_pwd))
-      PRODUCT_IDENTIFIER: ((product_identifier))
-
 - name: stage-product
   plan:
   - aggregate:
@@ -223,7 +178,6 @@ jobs:
       params:
         globs:
         - "*-linux"
-      passed: [build-pasw-injected]
 
   - task: stage-tile
     file: pipelines-repo/tasks/stage-product/task.yml
@@ -240,7 +194,6 @@ jobs:
   - aggregate:
     - get: pcf-pipelines
       resource: pipelines-repo
-      passed: [stage-product]
     - get: pivnet-product
       resource: pivnet-product
       params:
@@ -252,16 +205,6 @@ jobs:
         globs:
         - "*-linux"
       passed: [stage-product]
-    - get: pivnet-cli
-      params:
-        globs:
-        - "*linux-amd64*"
-      passed: [build-pasw-injected]
-    - get: jq
-      params:
-        globs:
-        - "*linux64*"
-      passed: [build-pasw-injected]
 
   - task: upload-stemcell
     file: pcf-pipelines/tasks/upload-stemcell/task.yml
@@ -274,6 +217,38 @@ jobs:
       OPSMAN_CLIENT_SECRET: ""
       PIVNET_API_TOKEN: ((pivnet_token))
       IAAS: ((iaas_type))
+
+- name: generate-product-config
+  plan:
+  - aggregate:
+    - get: pipelines-repo
+      passed: [upload-stemcell]
+    - get: pivnet-product
+      resource: pivnet-product
+      params:
+        globs: []
+      passed: [upload-stemcell]
+    - get: om-cli
+      params:
+        globs:
+        - "*-linux"
+      passed: [upload-stemcell]
+    - get: jq
+      params:
+        globs:
+        - "*linux64*"
+    - get: tile-config-convertor
+      params:
+        globs: ["*linux*"]
+
+  - task: generate-config
+    file: pipelines-repo/tasks/generate-config/task.yml
+    params:
+      DEBUG: ((debug))
+      OPS_MGR_HOST: ((ops_mgr_host))
+      OPS_MGR_USR: ((ops_mgr_usr))
+      OPS_MGR_PWD: ((ops_mgr_pwd))
+      PRODUCT_IDENTIFIER: ((product_identifier))
 
 - name: config-product
   plan:
@@ -295,7 +270,6 @@ jobs:
       params:
         globs:
         - "*linux64*"
-      passed: [build-pasw-injected]
 
   - task: config-tile
     file: pipelines-repo/tasks/config-product/task.yml
@@ -314,17 +288,12 @@ jobs:
   - aggregate:
     - get: pipelines-repo
       passed: [config-product]
+      trigger: true
     - get: om-cli
       params:
         globs:
         - "*om-linux*"
       passed: [config-product]
-    - get: pivnet-product
-      resource: pivnet-product
-      params:
-        globs: []
-      passed: [config-product]
-      trigger: true
     - get: jq
       params:
         globs:
@@ -345,11 +314,6 @@ jobs:
   plan:
   - aggregate:
     - get: pipelines-repo
-      passed: [disable-errands]
-    - get: pivnet-product
-      resource: pivnet-product
-      params:
-        globs: []
       passed: [disable-errands]
       trigger: true
     - get: om-cli
