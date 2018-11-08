@@ -59,11 +59,12 @@ if [ -n "$STEMCELL_VERSION" ]; then
     echo "Downloading stemcell $STEMCELL_VERSION"
 
     windows_stemcell=$(
-      $JQ_CMD \
-      --raw-output \
+      $JQ_CMD --raw-output \
         '
         if any(.Dependencies[]; select(.Release.Product.Name | contains("Stemcells for PCF (Windows)"))) then
           "stemcells-windows-server"
+        else
+          ""
         end
         ' < pivnet-product/metadata.json
     )
