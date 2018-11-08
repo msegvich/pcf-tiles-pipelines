@@ -60,7 +60,7 @@ if [ -n "$STEMCELL_VERSION" ]; then
 
     product_slug=$(
       $JQ_CMD \
-      --arg stemcell_type \
+      --arg stemcell_type "$STEMCELL_TYPE" \
       --raw-output \
         '
         if any(.Dependencies[]; select(.Release.Product.Name | contains("Stemcells for PCF (Windows)"))) then
