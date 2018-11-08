@@ -58,20 +58,25 @@ if [ -n "$STEMCELL_VERSION" ]; then
   if [[ -z "$stemcell" ]]; then
     echo "Downloading stemcell $STEMCELL_VERSION"
 
-    product_slug=$(
+    windows_stemcell=$(
       $JQ_CMD \
-      --arg stemcell_type "$STEMCELL_TYPE" \
       --raw-output \
         '
         if any(.Dependencies[]; select(.Release.Product.Name | contains("Stemcells for PCF (Windows)"))) then
           "stemcells-windows-server"
-        elif $stemcell_type="xenial" then
-          "stemcells-ubuntu-xenial"
-        else
-          "stemcells"
         end
         ' < pivnet-product/metadata.json
     )
+
+    if [[ -z "$windows_stemcell" ]]; then
+      if [ "$STEMCELL_TYPE"="xenial" ]; then
+        PRODUCT_SLUG="stemcells-ubuntu-xenial"
+      else
+        PRODUCT_SLUG="stemcells"
+      fi
+    else
+      PRODUCT_SLUG="stemcells-windows-server"
+    fi
 
     $PIVNET_CLI login --api-token="$PIVNET_API_TOKEN"
     $PIVNET_CLI download-product-files -p "$product_slug" -r $STEMCELL_VERSION -g "*${IAAS_TYPE}*" --accept-eula
