@@ -59,11 +59,13 @@ if [ -n "$STEMCELL_VERSION" ]; then
     echo "Downloading stemcell $STEMCELL_VERSION"
 
     product_slug=$(
-      $JQ_CMD --raw-output \
+      $JQ_CMD \
+      --arg stemcell_type \
+      --raw-output \
         '
         if any(.Dependencies[]; select(.Release.Product.Name | contains("Stemcells for PCF (Windows)"))) then
           "stemcells-windows-server"
-        elif "$STEMCELL_TYPE"="xenial" then
+        elif $stemcell_type="xenial" then
           "stemcells-ubuntu-xenial"
         else
           "stemcells"
