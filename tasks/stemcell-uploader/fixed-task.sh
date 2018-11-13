@@ -70,7 +70,7 @@ if [ -n "$STEMCELL_VERSION" ]; then
     )
 
     if [[ -z "$windows_stemcell" ]]; then
-      if [ "$STEMCELL_TYPE"="xenial" ]; then
+      if [ "$STEMCELL_TYPE" = "xenial" ]; then
         PRODUCT_SLUG="stemcells-ubuntu-xenial"
       else
         PRODUCT_SLUG="stemcells"
