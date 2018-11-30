@@ -11,6 +11,7 @@ resources:
   source:
     user: pivotal-cf
     repository: om
+    tag: 0.44.0
     access_token: ((git_token)) ## Optional: Removing this will cause you to hit the rate limit
 
 - name: pivnet-cli
@@ -155,7 +156,7 @@ jobs:
     - get: tile-config-convertor
       params:
         globs: ["*linux*"]
-        
+
   - task: generate-config
     file: pipelines-repo/tasks/generate-config/task.yml
     params:
